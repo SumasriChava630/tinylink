@@ -10,13 +10,21 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 
+type LinkItem = {
+  code: string;
+  url: string;
+  clicks: number;
+  last_clicked: string | null;
+};
+
 export default function Home() {
-  const [links, setLinks] = useState([]);
-  const [url, setUrl] = useState("");
-  const [custom, setCustom] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [toast, setToast] = useState("");
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [url, setUrl] = useState<string>("");
+  const [custom, setCustom] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [toast, setToast] = useState<string>("");
+
 
   // Load all links
   useEffect(() => {
@@ -74,7 +82,7 @@ export default function Home() {
     // Instant update
     setUrl("");
     setCustom("");
-    setLinks([data, ...links]);
+    setLinks([data as LinkItem, ...links]);
     showToast("Link Created!");
   }
 
