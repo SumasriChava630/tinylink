@@ -25,7 +25,6 @@ export default function Home() {
   const [search, setSearch] = useState<string>("");
   const [toast, setToast] = useState<string>("");
 
-
   // Load all links
   useEffect(() => {
     loadLinks();
@@ -34,7 +33,7 @@ export default function Home() {
   async function loadLinks() {
     try {
       const res = await fetch("/api/links", { cache: "no-store" });
-      const data = await res.json();
+      const data: LinkItem[] = await res.json();
       setLinks(data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -79,17 +78,27 @@ export default function Home() {
       return;
     }
 
-    // Instant update
+    // Typed update — FIXED for Vercel
+    const newItem: LinkItem = {
+      code: data.code,
+      url: data.url,
+      clicks: data.clicks,
+      last_clicked: data.last_clicked,
+    };
+
     setUrl("");
     setCustom("");
-    setLinks([data as LinkItem, ...links]);
+
+    // Vercel-compatible state update
+    setLinks((prev) => [newItem, ...prev]);
+
     showToast("Link Created!");
   }
 
   // Delete link
   async function deleteLink(code: string) {
     await fetch(`/api/links/${code}`, { method: "DELETE" });
-    setLinks(links.filter((item) => item.code !== code));
+    setLinks((prev) => prev.filter((item) => item.code !== code));
     showToast("Link Deleted");
   }
 
@@ -211,8 +220,9 @@ export default function Home() {
                     : "Never"}
                 </div>
 
-                <div className="text-purple-600 underline">
-                  {window?.location?.origin}/r/{item.code}
+                <div className="text-purple-600 underline break-all">
+                  {typeof window !== "undefined" &&
+                    `${window.location.origin}/r/${item.code}`}
                 </div>
               </div>
             </div>
@@ -240,7 +250,6 @@ export default function Home() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }
